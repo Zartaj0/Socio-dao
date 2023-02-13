@@ -75,9 +75,11 @@ contract socioContract is Ownable {
         return _user.balance;
     }
 
-    function createProposal(
-        string memory _proposal
-    ) external tokenHolderOnly returns (uint256) {
+    function createProposal(string memory _proposal)
+        external
+        tokenHolderOnly
+        returns (uint256)
+    {
         // require(nftMarketplace.available(_nftTokenId), "Nft not for sale");
 
         Proposal storage proposal = proposals[numProposals];
@@ -88,22 +90,21 @@ contract socioContract is Ownable {
         return numProposals - 1;
     }
 
-    function voteOnProposal(
-        uint256 proposalId,
-        Vote vote
-    ) external tokenHolderOnly activeProposalOnly(proposalId) {
+    function voteOnProposal(uint256 proposalId, Vote vote)
+        external
+        tokenHolderOnly
+        activeProposalOnly(proposalId)
+    {
         Proposal storage proposal = proposals[proposalId];
+        ///@notice modifier already checking the balance
+        //uint256 voterTokenBalance = socioTokens.balanceOf(msg.sender);
 
-        uint256 voterTokenBalance = socioTokens.balanceOf(msg.sender);
+        // uint256 numVotes = 1;
 
-        uint256 numVotes = 1;
-
-        if (voterTokenBalance > 0) {
-            if (vote == Vote.YAY) {
-                proposal.yayvotes += numVotes;
-            } else {
-                proposal.nayvotes += numVotes;
-            }
+        if (vote == Vote.YAY) {
+            proposal.yayvotes += 1;
+        } else {
+            proposal.nayvotes += 1;
         }
     }
 
