@@ -1,16 +1,18 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config({ path: ".env" });
+require("dotenv").config();
+require("hardhat-gas-reporter");
 
-const QUICKNODE_HTTP_URL = process.env.QUICKNODE_HTTP_URL;
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.17",
   networks: {
     mumbai: {
-      url: QUICKNODE_HTTP_URL,
-      accounts: [PRIVATE_KEY],
+      url:  process.env.ALCHEMY_MUMBAI_URL,
+      accounts: [process.env.PRIVATE_KEY1],
     },
   },
+  gasReporter: {
+    enabled: true
+  }
 };

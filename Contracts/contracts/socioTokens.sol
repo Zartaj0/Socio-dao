@@ -1,33 +1,62 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract socioTokens is ERC20Votes {
-    uint256 public s_maxSupply = 1000000000000000000000000;
+contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
+    using Counters for Counters.Counter;
 
-    constructor() ERC20("socioTokens", "ST") ERC20Permit("socioTokens") {
-        _mint(msg.sender, s_maxSupply);
+    Counters.Counter private _tokenIdCounter;
+
+    constructor() ERC721("MyToken", "MTK") {}
+
+    function safeMint(address to) public onlyOwner {
+        require(balanceOf(to) == 0,"one NFT per wallet");
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
     }
 
-    // The functions below are overrides required by Solidity.
+    // The following functions are overrides required by Solidity.
 
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal override(ERC20Votes) {
-        super._afterTokenTransfer(from, to, amount);
+    function _baseURI()  internal pure override  returns (string memory) {
+     return "https://gateway.pinata.cloud/ipfs/QmbSHsG7gm36xMXEoUnduiQm6jorVht41HD9R7HjPHxDhq";
     }
 
-    function _mint(address to, uint256 amount) internal override(ERC20Votes) {
-        super._mint(to, amount);
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        require(from == address(0) || to == address(0), "Err: token transfer is BLOCKED");   
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function _burn(
-        address account,
-        uint256 amount
-    ) internal override(ERC20Votes) {
-        super._burn(account, amount);
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
+
+    function tokenURI(uint256 tokenId)
+        public
+        pure
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return _baseURI();
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+
 }

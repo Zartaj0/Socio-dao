@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 interface IExecutionContract {
     // this is where the execution function goes
@@ -18,7 +18,7 @@ contract socioContract is Ownable {
     }
 
     struct Proposal {
-        string proposal;
+        bytes proposal;
         uint256 deadline;
         uint256 yayvotes;
         uint256 nayvotes;
@@ -60,6 +60,10 @@ contract socioContract is Ownable {
         _;
     }
 
+    function viewProposal(uint id) external view returns(string memory)  {
+      return abi.decode(proposals[id].proposal,(string));
+    }
+
     function addBalance() public payable {
         address to = address(this);
         (bool success, ) = to.call{value: msg.value}("");
@@ -83,7 +87,7 @@ contract socioContract is Ownable {
         // require(nftMarketplace.available(_nftTokenId), "Nft not for sale");
 
         Proposal storage proposal = proposals[numProposals];
-        proposal.proposal = _proposal;
+        proposal.proposal = abi.encode(_proposal);
         proposal.deadline = block.timestamp + 2 minutes;
 
         numProposals++;
